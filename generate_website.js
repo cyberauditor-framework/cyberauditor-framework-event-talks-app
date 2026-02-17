@@ -1,0 +1,304 @@
+const talks = [
+    {
+        title: "Introduction to Web Components",
+        speakers: ["Alice Wonderland"],
+        category: ["Frontend", "Web Standards"],
+        duration: 60, // minutes
+        description: "Explore the power of Web Components for building reusable UI elements."
+    },
+    {
+        title: "Demystifying Serverless Architectures",
+        speakers: ["Bob The Builder"],
+        category: ["Backend", "Cloud", "Architecture"],
+        duration: 60,
+        description: "Understand the concepts and benefits of serverless computing with real-world examples."
+    },
+    {
+        title: "Effective State Management in React",
+        speakers: ["Charlie Chaplin", "Diana Prince"],
+        category: ["Frontend", "React"],
+        duration: 60,
+        description: "A deep dive into various state management patterns and libraries for React applications."
+    },
+    {
+        title: "Securing Your Node.js APIs",
+        speakers: ["Eve Adams"],
+        category: ["Backend", "Security", "Node.js"],
+        duration: 60,
+        description: "Learn best practices for securing your Node.js backend APIs against common vulnerabilities."
+    },
+    {
+        title: "Modern CSS Techniques for Responsive Design",
+        speakers: ["Frank Lloyd Wright"],
+        category: ["Frontend", "CSS", "Design"],
+        duration: 60,
+        description: "Master modern CSS features like Grid, Flexbox, and custom properties for creating stunning responsive layouts."
+    },
+    {
+        title: "Testing Strategies for JavaScript Applications",
+        speakers: ["Grace Hopper"],
+        category: ["Testing", "JavaScript"],
+        duration: 60,
+        description: "An overview of testing methodologies and tools for ensuring the quality of your JavaScript codebase."
+    }
+];
+
+function generateSchedule(talks) {
+    let currentTime = new Date();
+    currentTime.setHours(10, 0, 0, 0); // Event starts at 10:00 AM
+
+    const schedule = [];
+    let talkIndex = 0;
+
+    for (let i = 0; i < 6; i++) { // 6 talks
+        if (talkIndex === 2) { // Lunch break after the 2nd talk
+            schedule.push({
+                type: "break",
+                title: "Lunch Break",
+                startTime: new Date(currentTime),
+                endTime: new Date(currentTime.getTime() + 60 * 60 * 1000) // 1 hour lunch
+            });
+            currentTime.setTime(currentTime.getTime() + 60 * 60 * 1000); // Advance time by 1 hour
+        }
+
+        const talk = talks[talkIndex];
+        const talkStartTime = new Date(currentTime);
+        const talkEndTime = new Date(currentTime.getTime() + talk.duration * 60 * 1000);
+
+        schedule.push({
+            type: "talk",
+            ...talk,
+            startTime: talkStartTime,
+            endTime: talkEndTime
+        });
+
+        currentTime.setTime(talkEndTime.getTime());
+
+        if (i < 5) { // Add transition except after the last talk
+            schedule.push({
+                type: "transition",
+                title: "Transition",
+                startTime: new Date(currentTime),
+                endTime: new Date(currentTime.getTime() + 10 * 60 * 1000) // 10 minute transition
+            });
+            currentTime.setTime(currentTime.getTime() + 10 * 60 * 1000); // Advance time by 10 minutes
+        }
+        talkIndex++;
+    }
+    return schedule;
+}
+
+const fullSchedule = generateSchedule(talks);
+
+function formatTime(date) {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technical Talks Event Schedule</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .search-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .search-container input[type="text"] {
+            padding: 10px;
+            width: 70%;
+            max-width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        .search-container button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .search-container button:hover {
+            background-color: #0056b3;
+        }
+        .schedule-item {
+            background-color: #e9ecef;
+            border-left: 5px solid #007bff;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            opacity: 1;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .schedule-item.hidden {
+            display: none;
+        }
+        .schedule-item.talk {
+            border-color: #28a745;
+        }
+        .schedule-item.break {
+            background-color: #ffe0b2;
+            border-color: #ff9800;
+            text-align: center;
+        }
+        .schedule-item.transition {
+            background-color: #f0f8ff;
+            border-color: #6c757d;
+            font-style: italic;
+            text-align: center;
+            font-size: 0.9em;
+            padding: 8px;
+        }
+        .schedule-item h2 {
+            margin-top: 0;
+            color: #28a745;
+        }
+        .schedule-item.break h2 {
+            color: #ff9800;
+        }
+        .schedule-item p {
+            margin: 5px 0;
+        }
+        .schedule-item .time {
+            font-weight: bold;
+            color: #0056b3;
+        }
+        .schedule-item .speakers {
+            font-style: italic;
+        }
+        .schedule-item .category {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Technical Talks Event Schedule</h1>
+
+        <div class="search-container">
+            <input type="text" id="categorySearch" placeholder="Search by category (e.g., Frontend, AI)">
+            <button onclick="filterSchedule()">Search</button>
+            <button onclick="clearSearch()">Clear</button>
+        </div>
+
+        <div id="schedule"></div>
+    </div>
+
+    <script>
+        const talksData = ${JSON.stringify(talks, null, 2)};
+        const fullScheduleData = ${JSON.stringify(fullSchedule.map(item => ({
+            ...item,
+            startTime: item.startTime.toISOString(), // Convert Date objects to ISO strings
+            endTime: item.endTime.toISOString()
+        })), null, 2)};
+
+        function formatTimeClient(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function renderSchedule(scheduleToRender) {
+            const scheduleDiv = document.getElementById('schedule');
+            scheduleDiv.innerHTML = ''; // Clear previous schedule
+
+            scheduleToRender.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.classList.add('schedule-item', item.type);
+
+                if (item.type === 'talk') {
+                    itemDiv.innerHTML = \`
+                        <p class="time">\${formatTimeClient(item.startTime)} - \${formatTimeClient(item.endTime)}</p>
+                        <h2>\${item.title}</h2>
+                        <p class="speakers">Speakers: \${item.speakers.join(', ')}</p>
+                        <p>\${item.description}</p>
+                        <p class="category">Categories: \${item.category.join(', ')}</p>
+                    \`;
+                } else if (item.type === 'break') {
+                    itemDiv.innerHTML = \`
+                        <p class="time">\${formatTimeClient(item.startTime)} - \${formatTimeClient(item.endTime)}</p>
+                        <h2>\${item.title}</h2>
+                    \`;
+                } else if (item.type === 'transition') {
+                    itemDiv.innerHTML = \`
+                        <p class="time">\${formatTimeClient(item.startTime)} - \${formatTimeClient(item.endTime)}</p>
+                        <p>\${item.title}</p>
+                    \`;
+                }
+                scheduleDiv.appendChild(itemDiv);
+            });
+        }
+
+        function filterSchedule() {
+            const searchTerm = document.getElementById('categorySearch').value.toLowerCase();
+            
+            const scheduleDiv = document.getElementById('schedule');
+            scheduleDiv.innerHTML = '';
+
+            fullScheduleData.forEach(item => {
+                if (item.type === 'talk') {
+                    const matches = item.category.some(cat => cat.toLowerCase().includes(searchTerm));
+                    if (!matches && searchTerm !== '') {
+                        return; // Skip rendering if it's a talk and doesn't match the search term
+                    }
+                }
+                // Render all breaks and transitions, and matching talks or all talks if search term is empty
+                const itemDiv = document.createElement('div');
+                itemDiv.classList.add('schedule-item', item.type);
+                if (item.type === 'talk') {
+                     itemDiv.innerHTML = \`
+                        <p class="time">\${formatTimeClient(item.startTime)} - \${formatTimeClient(item.endTime)}</p>
+                        <h2>\${item.title}</h2>
+                        <p class="speakers">Speakers: \${item.speakers.join(', ')}</p>
+                        <p>\${item.description}</p>
+                        <p class="category">Categories: \${item.category.join(', ')}</p>
+                    \`;
+                } else if (item.type === 'break') {
+                    itemDiv.innerHTML = \`
+                        <p class="time">\${formatTimeClient(item.startTime)} - \${formatTimeClient(item.endTime)}</p>
+                        <h2>\${item.title}</h2>
+                    \`;
+                } else if (item.type === 'transition') {
+                    itemDiv.innerHTML = \`
+                        <p class="time">\${formatTimeClient(item.startTime)} - \${formatTimeClient(item.endTime)}</p>
+                        <p>\${item.title}</p>
+                    \`;
+                }
+                scheduleDiv.appendChild(itemDiv);
+            });
+        }
+
+        function clearSearch() {
+            document.getElementById('categorySearch').value = '';
+            filterSchedule(); // Call filterSchedule with empty search term to show all
+        }
+
+        // Initial render
+        filterSchedule();
+    </script>
+</body>
+</html>
